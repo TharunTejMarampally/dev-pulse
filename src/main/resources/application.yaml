@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: dev-pulse
+telegram:
+  token: 8575506944:AAFgKzje8Y4QkSAsDSex272r7TqV27CeZ5c
+  chat-id: 1581072810

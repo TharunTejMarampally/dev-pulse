@@ -1,0 +1,16 @@
+name: DevPulse
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # every 10 minutes
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - run: ./gradlew bootRun
