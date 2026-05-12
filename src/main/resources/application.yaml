@@ -1,6 +1,15 @@
 spring:
   application:
     name: dev-pulse
+  datasource:
+    url: ${NEON_DB_URL}
+    username: ${NEON_DB_USERNAME}
+    password: ${NEON_DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
 telegram:
-  token: 8575506944:AAFgKzje8Y4QkSAsDSex272r7TqV27CeZ5c
-  chat-id: 1581072810
+  token: ${TOKEN}
+  chat-id: ${CHAT_ID}
