@@ -32,4 +32,4 @@ jobs:
         run: ./gradlew clean build -x test
 
       - name: Run DevPulse bot (non-web)
-        run: java -jar build/libs/*.jar
+        run: java -jar build/libs/devpulse.jar
