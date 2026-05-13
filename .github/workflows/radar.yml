@@ -26,6 +26,10 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+          cache: gradle
 
-      - name: Run Spring Boot
-        run: ./gradlew bootRun
+      - name: Build project
+        run: ./gradlew clean build -x test
+
+      - name: Run DevPulse bot (non-web)
+        run: java -jar build/libs/*.jar
