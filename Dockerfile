@@ -2,15 +2,18 @@
 FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
 
-# copy only wrapper first (better caching)
+# Copy ONLY files needed to resolve dependencies first (best caching)
 COPY gradlew .
-COPY gradle gradle
+COPY gradle/wrapper gradle/wrapper
+COPY build.gradle settings.gradle ./
+
 RUN chmod +x gradlew
+RUN ./gradlew --version
 
-# copy project
-COPY . .
+# Now copy source
+COPY src src
 
-# use wrapper (THIS is the fix)
+# Build
 RUN ./gradlew clean build -x test
 
 # -------- Run stage --------
