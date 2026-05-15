@@ -4,7 +4,6 @@ import com.org.devPulse.entity.LastSeenRelease;
 import com.org.devPulse.repository.LastSeenReleaseRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -24,10 +23,9 @@ public class ReleaseScheduler implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         checkReleases();
-        System.exit(0); // ✅ VERY IMPORTANT for GitHub Actions
+        System.exit(0);
     }
 
-    @Scheduled(fixedDelay = 600_000)
     public void checkReleases() throws Exception {
         Map<String, String> feeds = Map.of(
                 "Spring Boot", "https://github.com/spring-projects/spring-boot/releases.atom",
