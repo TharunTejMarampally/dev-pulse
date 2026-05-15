@@ -1,5 +1,5 @@
 # -------- Build stage --------
-FROM eclipse-temurin:17-jdk AS build
+FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
 
 # Copy ONLY files needed to resolve dependencies first (best caching)
@@ -17,7 +17,7 @@ COPY src src
 RUN ./gradlew clean build -x test
 
 # -------- Run stage --------
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
 
