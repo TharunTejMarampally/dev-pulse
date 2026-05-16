@@ -15,5 +15,5 @@ telegram:
   token: ${TOKEN}
   chat-id: ${CHAT_ID}
 
-hugging-face:
-  token: ${HF_TOKEN}
+gemini:
+  token: ${GEMINI_TOKEN}

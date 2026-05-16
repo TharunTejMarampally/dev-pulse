@@ -1,5 +1,6 @@
 package com.org.devPulse.service;
 
+import com.org.devPulse.entity.Feed;
 import com.org.devPulse.entity.LastSeenRelease;
 import com.org.devPulse.repository.LastSeenReleaseRepo;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -20,18 +22,15 @@ public class ReleaseScheduler {
     private final TelegramService telegram;
     private final LastSeenReleaseRepo repo;
     private final SummaryService summaryService;
+    private final FeedService feedService;
 
     @Scheduled(fixedDelay = 600_000)
     public void checkReleases() {
-
-        Map<String, String> feeds = Map.of(
-                "Spring Boot", "https://github.com/spring-projects/spring-boot/releases.atom",
-                "Spring Framework", "https://github.com/spring-projects/spring-framework/releases.atom"
-        );
-
-        feeds.forEach((feedName, url) -> {
+        List<Feed> feedsList = feedService.getActiveFeeds();
+        feedsList.forEach(feed -> {
+            String feedName = feed.getFeedName();
             try {
-                var entries = reader.read(url);
+                var entries = reader.read(feed.getRssUrl());
 
                 if (entries.isEmpty()) {
                     log.info("No entries found for {}", feedName);

@@ -1,49 +1,75 @@
 package com.org.devPulse.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
-import static com.org.devPulse.utils.DevPulseConstants.HF_URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import static com.org.devPulse.utils.DevPulseConstants.GEMENI_URL;
+
+@Service
+@Slf4j
 public class SummaryService {
 
     private final RestTemplate restTemplate = new RestTemplate();
+    private final ObjectMapper mapper = new ObjectMapper();
 
-    @Value("${hugging-face.token}")
-    private String hfToken;
+    @Value("${gemini.token}")
+    private String apiKey;
+
 
     public String summarize(String articleText) {
+
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(hfToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // HF has input size limits → trim text
         String input = articleText.length() > 3000
                 ? articleText.substring(0, 3000)
                 : articleText;
 
-        String body = """
-                {
-                  "inputs": "%s"
-                }
-                """.formatted(input.replace("\"", "'"));
+        Map<String, Object> part = new HashMap<>();
+        part.put("text", input);
 
-        HttpEntity<String> entity = new HttpEntity<>(body, headers);
+        Map<String, Object> content = new HashMap<>();
+        content.put("parts", List.of(part));
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("contents", List.of(content));
+
+        HttpEntity<Map<String, Object>> entity =
+                new HttpEntity<>(requestBody, headers);
 
         ResponseEntity<String> response =
-                restTemplate.postForEntity(HF_URL, entity, String.class);
+                restTemplate.postForEntity(GEMENI_URL + "?key=" + apiKey, entity, String.class);
 
         return extractSummary(response.getBody());
     }
 
     private String extractSummary(String json) {
-        // HF returns: [{"summary_text":"..."}]
-        int start = json.indexOf("summary_text") + 15;
-        int end = json.indexOf("\"", start);
-        return json.substring(start, end);
+        try {
+            JsonNode root = mapper.readTree(json);
+
+            return root.path("candidates")
+                    .get(0)
+                    .path("content")
+                    .path("parts")
+                    .get(0)
+                    .path("text")
+                    .asText();
+
+        } catch (Exception e) {
+            log.error("Gemini parse error", e);
+            throw new RuntimeException("Invalid Gemini JSON: " + json, e);
+        }
     }
 }
